@@ -1,5 +1,6 @@
 function [vel, gamma] = racePolicy(obs)
-% Implement this function
+% You must implement this function. The input/output of the function must be as follows.
+% Use m_main to test your implementation. 
 % Inputs:
 %   obs: 1*2 vector for the values of two light sensors
 % Outputs:
