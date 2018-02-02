@@ -1,42 +1,60 @@
 classdef bicycleEnv < handle
-%     cannot modify directly from outside
-    properties (Access = public)
-        x = 0;
+% Created by: Ke Ma
+% Modified by: Minh Hoai Nguyen (minhhoai@cs.stonybrook.edu)
+% Created: 01-Feb-2018
+% Last modified: 01-Feb-2018
+
+    properties (Access = private)
+        x = 0; % current position of the bike
         y = 0;
-        xs; ys;
-        theta = 0;
-        maps; % 6 maps 
-        mp; % current map
+        theta = 0; % current heading angle        
+        map; % current map
+        xs; ys; % finish point        
     end
     
     
     methods
         function obj = bicycleEnv()
-%             load maps
-            t = load('maps.mat');
-            obj.maps = t.maps;
             obj.reset();
         end
         
-%         update the robot status after each step
-        function [obs, fin] = step(obj, act)
-            v = act(1);
-            gamma = act(2);
-            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, v, gamma);
-%             test if the sensor are on the line or not (we need three sensors)
-            obs = obj.update_sensor(obj.x, obj.y, obj.theta, obj.mp);
-            fin = obj.check_end(obj.x, obj.y, obj.xs, obj.ys);
+        function traj = rideBike(obj, bikePolicy, shldDisp)            
+            [obs, ~] = obj.step(0, 0);
+            maxStep = 1000;
+            traj = zeros(2, maxStep); 
+            for step=1:maxStep
+                [vel, gamma] = bikePolicy(obs); 
+                [obs, done] = obj.step(vel, gamma);
+                traj(:, step) = [obj.x, obj.y];
+                if done
+                    break;
+                end
+            end
+            traj = traj(:, 1:step);
+            if exist('shldDisp', 'var') && shldDisp
+                figure; imshow(obj.map); hold on; scatter(traj(1,:), traj(2,:));
+                title(sprintf('Number of steps: %d', step));
+            end
         end
         
-%         reset the map and put the robot at the initial point with initial
-%         orientation
+        % update the robot position and angle given velocity and angle 
+        function [obs, done] = step(obj, vel, gamma)
+            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, vel, gamma);
+            % test if the sensor are on the line or not (we need three sensors)
+            obs = obj.update_sensor(obj.x, obj.y, obj.theta, obj.map);
+            done = obj.check_end(obj.x, obj.y, obj.xs, obj.ys);
+        end
+        
+        % reset the map and put the robot at the initial point and orientation
         function reset(obj)
-            id = 3;
-            t = obj.maps{id};
-            obj.mp = t.mp;
-            obj.x = t.sp(1);
-            obj.y = t.sp(2);
-            obj.theta = -t.sp(3);
+            fh = load('maps.mat');
+            maps = fh.maps;
+            id = randi(length(maps));
+            t = maps{id};
+            obj.map = t.mp;
+            obj.x = t.sp(1); % start position
+            obj.y = t.sp(2); 
+            obj.theta = -t.sp(3); % start angle
             obj.xs = t.ep(1);
             obj.ys = t.ep(2);
         end
@@ -55,13 +73,12 @@ classdef bicycleEnv < handle
             theta = theta + dtheta;
         end
         
-        function s = update_sensor(x, y, theta, mp)
+        function s = update_sensor(x, y, theta, map)
             % constrain the position inside the playground
             mgn = 6; % margin of the playground
-            [mh, mw] = size(mp);
+            [mh, mw] = size(map);
             x = min(max(mgn, round(x)), mw - mgn);
             y = min(max(mgn, round(y)), mh - mgn);
-            s2 = mp(y, x);
             % asix length
             ax = 2;
             p1 = [0, ax]';
@@ -69,21 +86,19 @@ classdef bicycleEnv < handle
             rmat = [cosd(theta), -sind(theta); sind(theta), cosd(theta)];
             p1 = round(rmat * p1) + [x, y]';
             p2 = round(rmat * p2) + [x, y]';
-            s1 = mp(p1(2), p1(1));
-            s3 = mp(p2(2), p2(1));
-            
-%             s = [s1, s3];
+            s1 = map(p1(2), p1(1));
+            s3 = map(p2(2), p2(1));
             s = [s1, s3];
         end 
         
-        function fin = check_end(x, y, xs, ys)
+        % Check if the destination is within reach
+        function done = check_end(x, y, xs, ys)
             d = (x - xs)^2 + (y - ys)^2;
             if d < 10
-                fin = 1;
+                done = 1;
             else
-                fin = 0;
+                done = 0;
             end
         end
-    end
-    
+    end    
 end
