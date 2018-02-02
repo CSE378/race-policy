@@ -11,16 +11,15 @@ classdef bicycleEnv < handle
         map; % current map
         xs; ys; % finish point        
     end
-    
-    
+        
     methods
         function obj = bicycleEnv()
             obj.reset();
         end
         
-        function traj = rideBike(obj, bikePolicy, shldDisp)            
+        function [traj, done] = rideBike(obj, bikePolicy, shldDisp)            
             [obs, ~] = obj.step(0, 0);
-            maxStep = 1000;
+            maxStep = 5000;
             traj = zeros(2, maxStep); 
             for step=1:maxStep
                 [vel, gamma] = bikePolicy(obs); 
@@ -32,8 +31,13 @@ classdef bicycleEnv < handle
             end
             traj = traj(:, 1:step);
             if exist('shldDisp', 'var') && shldDisp
-                figure; imshow(obj.map); hold on; scatter(traj(1,:), traj(2,:));
-                title(sprintf('Number of steps: %d', step));
+                clf; imshow(obj.map); hold on; scatter(traj(1,:), traj(2,:), '.r');
+                scatter(obj.xs, obj.ys, 'd', 'MarkerFaceColor',[0 .7 .7]); 
+                if done                    
+                    title(sprintf('Reach destination in %d steps', step));
+                else
+                    title('Fail to reach destiniation');
+                end
             end
         end
         
@@ -65,6 +69,14 @@ classdef bicycleEnv < handle
     
     methods (Static, Access = private)        
         function [x, y, theta] = update_bicycle(x, y, theta, v, gamma)
+            % velocity must be between 0 and 10
+            v = min(v, 1);
+            v = max(v, 0);
+            
+            % suppose the heading angle can only between -20 and 20 degree
+            gamma = min(gamma, 20);
+            gamma = max(gamma, -20);
+            
             L = 1;
             dx = v * cosd(theta);
             dy = v * sind(theta);
