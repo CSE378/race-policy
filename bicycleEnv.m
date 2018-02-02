@@ -1,8 +1,10 @@
 classdef bicycleEnv < handle
+% ==================> DO NOT modify this file  <===================
 % Created by: Ke Ma
 % Modified by: Minh Hoai Nguyen (minhhoai@cs.stonybrook.edu)
 % Created: 01-Feb-2018
 % Last modified: 01-Feb-2018
+
 
     properties (Access = private)
         x = 0; % current position of the bike
