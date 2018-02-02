@@ -37,14 +37,6 @@ classdef bicycleEnv < handle
             end
         end
         
-        % update the robot position and angle given velocity and angle 
-        function [obs, done] = step(obj, vel, gamma)
-            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, vel, gamma);
-            % test if the sensor are on the line or not (we need three sensors)
-            obs = obj.update_sensor(obj.x, obj.y, obj.theta, obj.map);
-            done = obj.check_end(obj.x, obj.y, obj.xs, obj.ys);
-        end
-        
         % reset the map and put the robot at the initial point and orientation
         function reset(obj)
             fh = load('maps.mat');
@@ -61,7 +53,17 @@ classdef bicycleEnv < handle
         
     end
     
-    methods (Static, Access = private)
+    methods (Access = private)
+        % update the robot position and angle given velocity and angle
+        function [obs, done] = step(obj, vel, gamma)
+            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, vel, gamma);
+            % test if the sensor are on the line or not (we need three sensors)
+            obs = obj.update_sensor(obj.x, obj.y, obj.theta, obj.map);
+            done = obj.check_end(obj.x, obj.y, obj.xs, obj.ys);
+        end
+    end
+    
+    methods (Static, Access = private)        
         function [x, y, theta] = update_bicycle(x, y, theta, v, gamma)
             L = 1;
             dx = v * cosd(theta);
