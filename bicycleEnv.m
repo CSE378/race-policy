@@ -91,12 +91,12 @@ classdef bicycleEnv < handle
         
         function s = update_sensor(x, y, theta, map)
             % constrain the position inside the playground
-            mgn = 6; % margin of the playground
+            mgn = 8; % margin of the playground
             [mh, mw] = size(map);
             x = min(max(mgn, round(x)), mw - mgn);
             y = min(max(mgn, round(y)), mh - mgn);
             % asix length
-            ax = 2;
+            ax = 4;
             p1 = [0, ax]';
             p2 = [0, -ax]';
             rmat = [cosd(theta), -sind(theta); sind(theta), cosd(theta)];
