@@ -48,6 +48,7 @@ classdef bicycleEnv < handle
             fh = load('maps.mat');
             maps = fh.maps;
             id = randi(length(maps));
+            id = 1;
             t = maps{id};
             obj.map = t.mp;
             obj.x = t.sp(1); % start position
