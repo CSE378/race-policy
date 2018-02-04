@@ -11,7 +11,8 @@ classdef bicycleEnv < handle
         y = 0;
         theta = 0; % current heading angle        
         map; % current map
-        xs; ys; % finish point        
+        xs; ys; % finish point     
+        gamma = 0; % current steering angle  
     end
         
     methods
@@ -22,10 +23,10 @@ classdef bicycleEnv < handle
         function [traj, done] = rideBike(obj, bikePolicy, shldDisp)            
             [obs, ~] = obj.step(0, 0);
             maxStep = 5000;
-            traj = zeros(2, maxStep); 
+            traj = zeros(2, maxStep);  
             for step=1:maxStep
-                [vel, gamma] = bikePolicy(obs); 
-                [obs, done] = obj.step(vel, gamma);
+                [vel, dgamma] = bikePolicy(obs); 
+                [obs, done] = obj.step(vel, dgamma);
                 traj(:, step) = [obj.x, obj.y];
                 if done
                     break;
@@ -61,8 +62,10 @@ classdef bicycleEnv < handle
     
     methods (Access = private)
         % update the robot position and angle given velocity and angle
-        function [obs, done] = step(obj, vel, gamma)
-            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, vel, gamma);
+        function [obs, done] = step(obj, vel, dgamma)
+            dgamma = min(max(dgamma, -5), 5);
+            obj.gamma = obj.gamma + dgamma;
+            [obj.x, obj.y, obj.theta] = obj.update_bicycle(obj.x, obj.y, obj.theta, vel, obj.gamma);
             % test if the sensor are on the line or not (we need three sensors)
             obs = obj.update_sensor(obj.x, obj.y, obj.theta, obj.map);
             done = obj.check_end(obj.x, obj.y, obj.xs, obj.ys);
@@ -75,9 +78,9 @@ classdef bicycleEnv < handle
             v = min(v, 1);
             v = max(v, 0);
             
-            % suppose the heading angle can only between -20 and 20 degree
-            gamma = min(gamma, 20);
-            gamma = max(gamma, -20);
+            % suppose the heading angle can only between -85 and 85 degree
+            gamma = min(gamma, 85);
+            gamma = max(gamma, -85);
             
             L = 1;
             dx = v * cosd(theta);
