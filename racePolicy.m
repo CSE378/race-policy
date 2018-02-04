@@ -1,4 +1,4 @@
-function [vel, gamma] = racePolicy(obs)
+function [vel, dgamma] = racePolicy(obs)
 % You must implement this function. The input/output of the function must be as follows.
 % Use m_main to test your implementation. 
 % Inputs:
@@ -6,12 +6,13 @@ function [vel, gamma] = racePolicy(obs)
 % Outputs:
 %   vel: the desired veolicy. You can return whatever value, 
 %        but the bicycle environment will clip it to [0, 1]
-%   gamma: steering angle of the bike in degree. It will be clipped by [-20, 20]
+%   dgamma: change of heading angle of the bike in degree. 
+%        It will be clipped by [-5, 5], and the accumulated steering angle is bounded by [-85, 85]
 
 
 % simple policy, keep going straight
 vel = 1;
-gamma = 20;
+dgamma = 0;
 
 
 
