@@ -1,18 +1,25 @@
-function [vel, dgamma] = racePolicy(obs)
+function [desLwSpeed, desRwSpeed] = racePolicy(obs)
 % You must implement this function. The input/output of the function must be as follows.
-% Use m_main to test your implementation. 
+% Use main to test your implementation. 
 % Inputs:
-%   obs: 1*2 vector for the values of two light sensors
+%   obs: a number for the reading of the light sensor. 
 % Outputs:
-%   vel: the desired veolicy. You can return whatever value, 
-%        but the bicycle environment will clip it to [0, 1]
-%   dgamma: change of heading angle of the bike in degree. 
-%        It will be clipped by [-5, 5], and the accumulated steering angle is bounded by [-85, 85]
+%   desLwSpeed, desRwSpeed: desired left and right wheel speeds
 
 
-% simple policy, keep going straight
-vel = 1;
-dgamma = 0;
+% You can use persistent variables to store history. Eg.
+persistent stepCount 
 
+if isempty(stepCount)
+    stepCount = 0;
+end
+stepCount = stepCount + 1;
 
-
+% Very simple policy, go straight for 10 steps and then spin around
+if stepCount < 10
+    desLwSpeed = 1;
+    desRwSpeed = 1;
+else
+    desLwSpeed = 0;
+    desRwSpeed = 0;
+end
