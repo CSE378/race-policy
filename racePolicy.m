@@ -9,29 +9,33 @@ function [desLwSpeed, desRwSpeed] = racePolicy(obs)
 
 
 persistent stepCount
+persistent mode
+persistent inTurn
 persistent prevObs
-persistent inRightTurn
-persistent keepTurning
 
-% Update Variables
-keepTurning = 0;
-inRightTurn = false;
-prevObs = obs;
+% Initialize Variables
 if isempty(stepCount)
     stepCount = 0;
+    mode = "straight";
+    prevObs = obs;
 end
 stepCount = stepCount + 1;
 
-% Go straight by default
-[desLwSpeed, desRwSpeed] = move("straight");
-% If offtrack, try right turn first
-if stepCount <= 100
-    if obs > 0.8
-        [desLwSpeed, desRwSpeed] = move("right");
-        inRightTurn = true;
-    end
-    if inRightTurn
-        [desLwSpeed, desRwSpeed] = move("left");
-    end
+%When going offtrack, first try right turn
+if obs > 0.9 && mode == "straight"
+    mode = "right";
+elseif obs < 0.9 && mode == "right"
+    mode = "straight";
 end
-% If we are getting back on track, turn left
+
+%Set speeds
+if mode == "straight"
+    [desLwSpeed, desRwSpeed] = move("straight");
+elseif mode == "right"
+    [desLwSpeed, desRwSpeed] = move("right");
+elseif mode == "left"
+    [desLwSpeed, desRwSpeed] = move("left");
+end
+
+%Record current obs for next timestamp
+prevObs = obs;

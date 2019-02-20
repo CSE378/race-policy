@@ -1,12 +1,14 @@
 function [desLwSpeed, desRwSpeed] = move(direction)
 
+speed = 0.4;
+
 if direction == "right"
     desLwSpeed = 0;
-    desRwSpeed = 1;
+    desRwSpeed = speed;
 elseif direction == "left"
-    desLwSpeed = 1;
+    desLwSpeed = speed;
     desRwSpeed = 0;
 elseif direction == "straight"
-    desLwSpeed = 1;
-    desRwSpeed = 1;
+    desLwSpeed = speed;
+    desRwSpeed = speed;
 end
