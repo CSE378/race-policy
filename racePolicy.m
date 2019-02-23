@@ -26,7 +26,7 @@ if obs > 0.9 && mode == "straight"
 elseif obs < 0.8 && mode ~= "straight"
     mode = "straight";
     turnCounter = 0;
-elseif obs > 0.95 && mode == "right" && turnCounter == 30
+elseif obs > 0.95 && mode == "right" && turnCounter == 32
     mode = "left";
     turnCounter = 0;
 end

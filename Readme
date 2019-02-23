@@ -1,0 +1,23 @@
+Please add this folder into your matlab project directory (..../src/run_test/)
+In matlab, please add the 'src' and all its subfolders to path, then 'run_test.m' can access your implementation.
+
+Run 'run_test.m' in matlab.
+
+If you see the following message, your pass.
+q1 =
+
+  logical
+
+   1
+
+
+q2 =
+
+  logical
+
+   1
+
+
+Matlab provides the following functions: rotx,roty,rotz, and quatrotate. 
+You cannot call them directly for Q1. However, using them as a debug tool is good.
+
